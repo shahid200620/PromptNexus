@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  prompt-router:
+    build: .
+    container_name: prompt_router_app
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    stdin_open: true
+    tty: true
