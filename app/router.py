@@ -1,12 +1,12 @@
 import os
 import json
-from openai import OpenAI
+from groq import Groq
 from dotenv import load_dotenv
 from app.prompts import PROMPTS
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 LOG_FILE = "logs/route_log.jsonl"
 
@@ -24,7 +24,7 @@ def route_and_respond(message: str, intent_data: dict):
             final_response = "I could not determine the correct expert to handle your request."
         else:
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="llama-3.1-8b-instant",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": message}

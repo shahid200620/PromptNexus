@@ -1,26 +1,28 @@
 import json
 import os
-from openai import OpenAI
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def classify_intent(message: str):
 
     prompt = f"""
-Your task is to classify the user's intent.
+Classify the user's intent.
 
-Choose one of these labels:
+Choose one label from:
 code
 data
 writing
 career
 unclear
 
-Respond only with a JSON object in this format:
-{{"intent": "label", "confidence": 0.0}}
+Respond ONLY with JSON.
+
+Example:
+{{"intent":"code","confidence":0.9}}
 
 User message:
 {message}
@@ -28,7 +30,7 @@ User message:
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="llama-3.1-8b-instant",
             messages=[
                 {"role": "system", "content": "You classify user intent."},
                 {"role": "user", "content": prompt}
@@ -36,14 +38,12 @@ User message:
             temperature=0
         )
 
-        content = response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
 
         result = json.loads(content)
 
-        if "intent" not in result or "confidence" not in result:
-            return {"intent": "unclear", "confidence": 0.0}
-
         return result
 
-    except Exception:
+    except Exception as e:
+        print("Classifier error:", e)
         return {"intent": "unclear", "confidence": 0.0}
